@@ -1,15 +1,15 @@
 import { Router } from "express";
-import { addCourse, deleteCourse, getAllCourses, getSingleCourses, updateCourse } from "../controllers/courses.controller.js";
+import { CourseController } from "../controllers/courses.controller.js";
 import { addCourseValidators } from "../validators/courses.js";
 
 export const router = Router()
 
 router.route("")
-        .get( getAllCourses)
-        .post( addCourseValidators, addCourse)
+        .get( CourseController.getAllCourses)
+        .post( addCourseValidators, CourseController.addCourse)
 
 router.route("/:courseId")
-        .get(getSingleCourses)
-        .patch(updateCourse)
-        .delete(deleteCourse)
+        .get(CourseController.getSingleCourses)
+        .patch(CourseController.updateCourse)
+        .delete(CourseController.deleteCourse)
 

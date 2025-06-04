@@ -3,8 +3,8 @@ import mongoose from "mongoose";
 
 
 const courseSchema = new mongoose.Schema({
-    title : String,
-    price : Number
+    title: { type: String, required: true },
+    price: { type: Number, required: true }
 });
 
 
