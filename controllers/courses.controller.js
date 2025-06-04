@@ -1,50 +1,59 @@
 import { validationResult } from "express-validator"
-import { courses } from "../data/courses.js"
+import { Course } from "../models/courses.model.js"
 
-export const getAllCourses = (req, res) => {
+export const getAllCourses = async(req, res) => {
+    const courses = await Course.find()
     res.json(courses)
 }
 
-export const getSingleCourses = (req, res) => {
-    const courseId = +req.params.courseId
-    const course = courses.find((course) => course.id === courseId)
-
-    if (!course) {
-        res.status(404).json({ "error": "Course not found" })
+export const getSingleCourses = async (req, res) => {
+    try{
+        const courseId = req.params.courseId
+        // const course = courses.find((course) => course.id === courseId)
+        const course = await Course.findById(courseId)
+    
+        if (!course) {
+            res.status(404).json({ "error": "Course not found" })
+        }
+        return res.json(course);
+    }catch(e){
+        return res.status(400).json({"error":e.message})
     }
-    res.json(course);
 }
 
-export const addCourse = (req, res) => {
+export const addCourse = async (req, res) => {
 
         const errors = validationResult(req)
         if (!errors.isEmpty()) {
             return res.status(400).json(errors.array())
         }
 
-        courses.push({ "id": courses.length + 1, ...req.body })
-        res.json(courses)
+        const newCourse = new Course(req.body)
+        await newCourse.save() 
+        res.json(newCourse)
 }
 
-export const updateCourse = (req, res) => {
-    let course = courses.find((course) => course.id === +req.params.courseId)
+export const updateCourse = async (req, res) => {
+    let course = await Course.findByIdAndUpdate(req.params.courseId, {$set:{...req.body}});
+    // let course = courses.find((course) => course.id === +req.params.courseId)
 
     if (!course)
-        return res.status(404).json({ "error": "Course not found" })
+        return res.status(404).json({ error: "Course not found" })
 
-    course.title = req.body.title ? req.body.title : course.title
-    course.price = req.body.price ? req.body.price : course.price
+    // course.title = req.body.title ? req.body.title : course.title
+    // course.price = req.body.price ? req.body.price : course.price
 
-    return res.json(courses)
+    return res.json(course)
 }
 
-export const deleteCourse = (req, res) => {
-    const index = courses.findIndex((course) => course.id === +req.params.courseId);
+export const deleteCourse = async (req, res) => {
+    await Course.findByIdAndDelete(req.params.courseId)
+    // const index = courses.findIndex((course) => course.id === +req.params.courseId);
 
-    if (index === -1) {
-        return res.status(404).json({ error: "Course not found" });
-    }
+    // if (index === -1) {
+    //     return res.status(404).json({ error: "Course not found" });
+    // }
 
-    courses.splice(index, 1); // ✅ modifies the array without reassigning
-    return res.json(courses);
+    // courses.splice(index, 1);
+    return res.json({message :"deleted successfully"});
 };
