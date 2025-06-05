@@ -6,8 +6,12 @@ import { Responses } from "../utils/httpResponse.js"
 export class CourseController {
 
     static async getAllCourses(req, res) {
-        const courses = await Course.find()
-        res.json(Responses.success(courses))
+        const limit = req.query['limit'] || 10
+        const page = req.query['page'] || 1
+        const skip = (page - 1) *2
+
+        const courses = await Course.find({}, {"__v":false}).limit(limit).skip(skip)
+        res.json(Responses.success({"count":courses.length, "courses":courses}))
     }
 
     static async getSingleCourses(req, res) {
